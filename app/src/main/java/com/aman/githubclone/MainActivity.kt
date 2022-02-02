@@ -2,11 +2,11 @@ package com.aman.githubclone
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.aman.githubclone.networking.Status
@@ -16,6 +16,7 @@ import com.aman.githubclone.ui.viewmodels.HomeViewModel
 import com.aman.githubclone.utils.Constants
 import com.aman.githubclone.utils.Navigation
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
         setUpObservers()
         setContent {
             navController = rememberNavController()
-            Navigation(navController = navController)
+            Navigation(navController = navController, homeViewModel)
         }
     }
 
@@ -62,24 +63,24 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        //Get User Repo Observer
-        homeViewModel.getUserRepoResponse.observe(this@MainActivity){
-            it.let { resource ->
-                when(resource.status){
-                    Status.SUCCESS -> {
-                        resource.data?.let { response ->
-                            Log.d("TAG User Repo", "setUpObservers: $response")
-
-                            navController.currentBackStackEntry
-                                ?.arguments?.putSerializable("repoList", response)
-                            navController.navigate("home_screen")
+        lifecycleScope.launch {
+            homeViewModel._getUserRepoResponse.collect(){
+                it.let { resource ->
+                    when (resource?.status) {
+                        Status.SUCCESS -> {
+                            resource?.data?.let { response ->
+                                navController.navigate("home_screen")
+                            }
                         }
+                        Status.ERROR -> {}
+                        Status.LOADING -> {}
                     }
-                    Status.ERROR -> { Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show() }
-                    Status.LOADING -> {}
                 }
             }
         }
+
+        //Get User Repo Observer
+
     }
 
 }

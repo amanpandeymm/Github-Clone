@@ -13,20 +13,32 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.asFlow
 import coil.compose.rememberImagePainter
+import com.aman.githubclone.networking.Resource
+import com.aman.githubclone.networking.Status
 import com.aman.githubclone.networking.models.response.UserRepoResponseModel
 import com.aman.githubclone.networking.models.response.UserRepoResponseModelItem
+import com.aman.githubclone.ui.viewmodels.HomeViewModel
+
 
 @Composable
-fun HomeScreenUI(repoList: UserRepoResponseModel) {
-
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        itemsIndexed(items = repoList) { index, item ->
-            RepoItemUI(repoItem = item)
+fun HomeScreenUI(homeViewModel: HomeViewModel = hiltViewModel()) {
+    val userRepoResponse by homeViewModel._getUserRepoResponse.collectAsState()
+    userRepoResponse?.data?.let {
+        
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            itemsIndexed(items = it) { index, item ->
+                RepoItemUI(repoItem = item)
+            }
         }
+    } ?: run {
+        if(userRepoResponse?.message.isNullOrEmpty()) Text(text = "HomeScreen")
     }
+    
 }
 
 

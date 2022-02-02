@@ -13,7 +13,7 @@ import com.aman.githubclone.ui.screens.SplashScreenUI
 import com.aman.githubclone.ui.viewmodels.HomeViewModel
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, homeViewModel: HomeViewModel) {
     NavHost(navController = navController, startDestination = "splash_screen") {
         composable("splash_screen") {
             SplashScreenUI(navController = navController)
@@ -21,15 +21,8 @@ fun Navigation(navController: NavHostController) {
         composable("auth_screen") {
             AuthScreenUI()
         }
-        composable(route = "home_screen", arguments = listOf(
-            navArgument("repoList") {
-                type = NavType.SerializableType(UserRepoResponseModel::class.java)
-            }
-        )) {
-            val repoList =
-                (navController.previousBackStackEntry?.arguments?.getSerializable("repoList") as? UserRepoResponseModel)
-                    ?: return@composable
-            HomeScreenUI(repoList = repoList)
+        composable("home_screen") {
+            HomeScreenUI(homeViewModel = homeViewModel)
         }
     }
 }

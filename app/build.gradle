@@ -91,4 +91,7 @@ dependencies {
     //coil
     implementation "io.coil-kt:coil-compose:1.4.0"
 
+    //Dagger Hilt Compose Navigation
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+
 }
